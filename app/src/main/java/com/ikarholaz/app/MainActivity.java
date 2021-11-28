@@ -2,7 +2,12 @@ package com.ikarholaz.app;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -10,19 +15,24 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
+import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
+    private String TAG = "WV";
     WebView myWebView;
     private ValueCallback<Uri> mUploadMessage;
     public ValueCallback<Uri[]> uploadMessage;
@@ -38,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
         myWebView = (WebView) findViewById(R.id.webview);
         myWebView.getSettings().setJavaScriptEnabled(true);
+        myWebView.addJavascriptInterface(new JavaScriptInterface(this), "Android");
         myWebView.getSettings().setAllowFileAccessFromFileURLs(true);
         myWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
         myWebView.getSettings().setMediaPlaybackRequiresUserGesture(false);
@@ -98,9 +109,16 @@ public class MainActivity extends AppCompatActivity {
                 i.addCategory(Intent.CATEGORY_OPENABLE);
                 startActivityForResult(Intent.createChooser(i, "File Chooser"), FILECHOOSER_RESULTCODE);
             }
+
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                Log.d(TAG, consoleMessage.message() + " -- From line " +
+                        consoleMessage.lineNumber() + " of " + consoleMessage.sourceId());
+                return true;
+            }
         });
         myWebView.loadUrl("file:///android_asset/index.html");
-
+        FirebaseMessaging.getInstance().subscribeToTopic("bc_notif");
     }
 
     @Override
