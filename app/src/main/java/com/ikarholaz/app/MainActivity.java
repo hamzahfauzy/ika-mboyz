@@ -30,6 +30,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.io.File;
